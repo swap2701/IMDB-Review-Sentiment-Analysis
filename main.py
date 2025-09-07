@@ -18,11 +18,19 @@ def decode_review(encoded_review):
     return ' '.join([reverse_word_index.get(i - 3, '?') for i in encoded_review])
 
 # Function to preprocess user input
+# Assume model trained with num_words=10000
+VOCAB_SIZE = 10000  
+
 def preprocess_text(text):
     words = text.lower().split()
-    encoded_review = [word_index.get(word, 2) + 3 for word in words]
+    encoded_review = [1]  # start token
+    for word in words:
+        idx = word_index.get(word, 2)  # 2 = OOV
+        if idx >= VOCAB_SIZE:  # keep only words in vocab
+            idx = 2
+        encoded_review.append(idx)
     padded_review = sequence.pad_sequences([encoded_review], maxlen=500)
-    return padded_review.astype("int32")
+    return padded_review
 
 
 import streamlit as st
